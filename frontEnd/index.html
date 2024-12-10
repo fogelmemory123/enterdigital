@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>לוח שנה עם חגים בישראל לפי סניפים</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .calendar-nav button {
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background-color: #3e8e41;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        td {
+            background-color: #f9f9f9;
+            padding: 15px;
+            text-align: center;
+            vertical-align: top;
+            border: 1px solid #ddd;
+            position: relative;
+            min-height: 80px;
+        }
+
+        td .date {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .birthday, .event, .holiday {
+            margin-top: 5px;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .holiday {
+            background-color: #FFA500;
+            color: white;
+        }
+
+        .event {
+            background-color: #4682B4;
+            color: white;
+        }
+
+        .navbar-nav .nav-link {
+            padding: 8px 15px;
+        }
+
+        #branchLegend span {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: black;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .calendar-nav button {
+                font-size: 1rem;
+                padding: 8px 12px;
+            }
+
+            td {
+                padding: 10px;
+                font-size: 0.1 rem;
+            }
+            .birthday, .event, .holiday {
+            margin-top: 5px;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: bold;
+        }
+        }
+    </style>
+</head>
+
+<body style="direction: rtl;">
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">לוח אירועים אנטר</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link active" href="#">בית</a></li>
+                        <li class="nav-item"><a href="login.html" class="nav-link" id="enter">כניסה</a></li>
+                        <li class="nav-item"><a href="admin.html" class="nav-link" id="admin"></a></li>
+
+                        <li class="nav-item"><a class="nav-link" id="user"></a></li>
+                        <li class="nav-item"><a class="nav-link" id="logout"></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div id="branchLegend" class="text-end my-3">
+            <span class="branch-1">🟦 תל אביב</span> |
+            <span class="branch-2">🟥 באר שבע</span> |
+            <span class="branch-3">🟩 ירושלים</span> |
+            <span class="branch-4">🟨 יקנעם</span> |
+            <span class="branch-5">🟪 קיסריה</span>
+        </div>
+
+        <div class="branch-select d-flex justify-content-between align-items-center mb-4">
+            <label for="branchSelect">בחר סניף:</label>
+            <select id="branchSelect" class="form-select w-50"></select>
+        </div>
+
+        <div class="calendar-nav d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-success" id="prev-month">חודש קודם</button>
+            <span id="current-month" class="fw-bold"></span>
+            <button class="btn btn-success" id="next-month">חודש הבא</button>
+        </div>
+
+        <div class="table-responsive">
+            <table id="calendar" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>א'</th>
+                        <th>ב'</th>
+                        <th>ג'</th>
+                        <th>ד'</th>
+                        <th>ה'</th>
+                        <th>ו'</th>
+                        <th>ש'</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+
+    <script>
+        const apiUrl = " http://localhost:8000/";
+        const monthNames = [
+            'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+            'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+        ];
+
+        const branchColors = {
+    1: '#1E90FF',  // 🟦 תל אביב
+    2: '#FF0000',  // 🟥 באר שבע
+    3: '#32CD32',  // 🟩 ירושלים
+    4: '#FFD700',  // 🟨 יקנעם
+    5: '#8A2BE2',  // 🟪 קיסריה
+};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarContainer = document.querySelector('#calendar tbody');
+            const currentMonthElement = document.getElementById('current-month');
+            const prevMonthButton = document.getElementById('prev-month');
+            const nextMonthButton = document.getElementById('next-month');
+            const branchSelect = document.getElementById('branchSelect');
+
+            let currentYear = new Date().getFullYear();
+            let currentMonth = new Date().getMonth();
+            let selectedBranch = 7;
+
+            // Fetch and populate branches
+            fetchBranches();
+
+            prevMonthButton.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                updateCalendar(currentYear, currentMonth, selectedBranch);
+            });
+
+            nextMonthButton.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                updateCalendar(currentYear, currentMonth, selectedBranch);
+            });
+
+            branchSelect.addEventListener('change', (event) => {
+                selectedBranch = event.target.value;
+                updateCalendar(currentYear, currentMonth, selectedBranch);
+            });
+
+            updateCalendar(currentYear, currentMonth, selectedBranch);
+
+            setInterval(() => {
+                updateCalendar(currentYear, currentMonth, selectedBranch);
+            }, 30000);
+        });
+        async function fetchBranches() {
+    const token = getToken();// מקבל את ה-token מה-localStorage (לדוגמה)
+
+    try {
+        const response = await fetch(apiUrl+'api/branches/branches/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                 // שליחת ה-token בכותרת Authorization
+            }
+        });
+
+        if (response.ok) {
+            const branches = await response.json();
+            populateBranchSelect(branches);
+        } else {
+            console.error('Error fetching branches:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error fetching branches:', error);
+    }
+}
+
+
+        function populateBranchSelect(branches) {
+            
+            const branchSelect = document.getElementById('branchSelect');
+            branchSelect.innerHTML = '';
+
+            const allOption = document.createElement('option');
+            allOption.value = 7;
+            allOption.textContent = 'כל הסניפים';
+            branchSelect.appendChild(allOption);
+
+            branches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch.id;
+                option.textContent = branch.city;
+                branchSelect.appendChild(option);
+            });
+        }
+
+        async function updateCalendar(year, month, branchId) {
+            const birthdayData = await birthdays(branchId);
+            const eventData = await events(branchId);
+            console.log(eventData)
+            const holidayData = await fetchHolidays(year, month + 1);
+
+            const calendarContainer = document.querySelector('#calendar tbody');
+            const currentMonthElement = document.getElementById('current-month');
+            calendarContainer.innerHTML = '';
+            currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let row = document.createElement('tr');
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('td');
+                row.appendChild(emptyCell);
+            }
+
+            const birthdayMap = mapBirthdays(birthdayData, month);
+            const eventMap = mapEvents(eventData, year, month);
+            const holidayMap = mapHolidays(holidayData);
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                if (row.children.length === 7) {
+                    calendarContainer.appendChild(row);
+                    row = document.createElement('tr');
+                }
+
+                const dayCell = document.createElement('td');
+                dayCell.className = 'day';
+
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'date';
+                dateDiv.textContent = day;
+                dayCell.prepend(dateDiv);  // Make sure the date is always at the top
+
+                if (holidayMap[day]) {
+                    const holidayDiv = document.createElement('div');
+                    holidayDiv.className = 'holiday';
+                    holidayDiv.textContent = holidayMap[day];
+                    dayCell.appendChild(holidayDiv);
+                    dayCell.classList.add('holiday');
+                }
+
+                if (birthdayMap[day]) {
+   birthdayMap[day].forEach(user => {
+       const birthdayDiv = document.createElement('div');
+       birthdayDiv.className = 'birthday';
+       console.log(user)
+       birthdayDiv.style.backgroundColor = branchColors[user.branch];  // הנחתי שזה ה-ID של הסניף
+       birthdayDiv.textContent = `${user.username} 🎂`;  // השתמש ב-username במקום name
+       
+       dayCell.appendChild(birthdayDiv);
+   });
+   dayCell.classList.add('birthday');
+}
+
+                if (eventMap[day]) {
+    eventMap[day].forEach(event => {
+        // Create the div container for the event
+        const eventDiv = document.createElement('div');
+        eventDiv.className = 'event';
+        console.log(event)
+        eventDiv.style.backgroundColor = branchColors[event.branch] || '#ccc';
+
+        // Generate the link to event.html with the event ID as a query parameter
+        const eventLinkUrl = `event.html?id=${event.id}`;  // Relative URL for local testing
+
+        const eventLink = document.createElement('a');
+        eventLink.href = eventLinkUrl;
+        eventLink.style.textDecoration = "none";
+        eventLink.target = '_blank'; // Open in a new tab
+        eventLink.textContent = `${event.description} 📅`;
+        eventLink.style.color = "white";
+
+        // Append the anchor to the event div
+        eventDiv.appendChild(eventLink);
+
+        // Append the event div to the day cell
+        dayCell.appendChild(eventDiv);
+    });
+}
+
+
+
+
+                row.appendChild(dayCell);
+            }
+
+            while (row.children.length < 7) {
+                const emptyCell = document.createElement('td');
+                row.appendChild(emptyCell);
+            }
+
+            calendarContainer.appendChild(row);
+        }
+
+        function mapBirthdays(birthdays, month) {     
+    const birthdayMap = {};     
+    console.log("Initial birthdayMap:", birthdayMap);
+    
+    birthdays.forEach(user => {         
+        if (user.birthday) {             
+            const [_, monthPart, dayPart] = user.birthday.split('-');             
+            if (parseInt(monthPart) - 1 === month) {                 
+                const day = parseInt(dayPart);                 
+                if (!birthdayMap[day]) {                     
+                    birthdayMap[day] = [];                 
+                }                 
+                console.log("Current birthdayMap:", birthdayMap);                 
+                birthdayMap[day].push(user);             
+            }         
+        }     
+    });     
+    
+    console.log("Final birthdayMap:", birthdayMap);
+    return birthdayMap; 
+}
+
+        function mapEvents(events, year, month) {
+            const eventMap = {};
+            events.forEach(event => {
+                const eventDate = new Date(event.date);
+                if (eventDate.getFullYear() === year && eventDate.getMonth() === month) {
+                    const day = eventDate.getDate();
+                    if (!eventMap[day]) {
+                        eventMap[day] = [];
+                    }
+                    eventMap[day].push(event);
+                }
+            });
+            return eventMap;
+        }
+
+        function mapHolidays(holidays) {
+            const holidayMap = {};
+            holidays.forEach(holiday => {
+                const holidayDate = new Date(holiday.date).getDate();
+                holidayMap[holidayDate] = holiday.title;
+            });
+            return holidayMap;
+        }
+
+        async function birthdays(branchId) {
+    const token = getToken();
+    if (!token) {
+        console.error('No token found. Please login again.');
+        return [];  // Optionally, you can redirect the user to the login page
+    }
+
+    let url = apiUrl+'api/users/birthdays/'+branchId+"/";
+  
+       console.log(url)
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'  // Added content-type header for consistency
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            return data;  // Return the fetched birthday data
+        } else {
+            // Handle different HTTP status codes
+            console.error('Error fetching birthdays:', response.status, response.statusText);
+            if (response.status === 401) {
+                alert('Unauthorized access. Please log in again.');
+                // Optionally, log out the user or redirect to login page
+            }
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching birthdays:', error);
+        return [];
+    }
+}
+
+        async function events(branchId) {
+            const token = getToken();
+            if (!token) {
+                console.error('No token found');
+                return [];
+            }
+
+            let url = apiUrl+'api/events/events/';
+            if (branchId && branchId != 7) {
+                url += `${branchId}/`;
+                
+            }
+
+            try {
+                const response = await fetch(url, {
+   method: 'GET',
+   headers: {
+       'Content-Type': 'application/json',
+       'Authorization': `Bearer ${token}`
+   }
+});
+
+                if (response.ok) {
+                    
+                    return await response.json();
+
+                } else {
+                    console.error('Error fetching events:', response.statusText);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                return [];
+            }
+        }
+
+        async function fetchHolidays(year, month) {
+            try {
+                const response = await fetch(`https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&year=${year}&month=${month}&lg=h`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.items || [];
+                } else {
+                    console.error('Error fetching holidays:', response.statusText);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error fetching holidays:', error);
+                return [];
+            }
+        }
+
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+        async function getUsername() {
+
+            const token = getToken();
+            if (!token) {
+                console.error('No token found');
+                return [];
+            }
+    try {
+        const response = await fetch(apiUrl+'api/users/get-username/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}` , // JWT token from local storage
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch username');
+        }
+
+        const data = await response.json();
+        console.log(data)
+        document.getElementById('user').innerHTML = `שלום לך ${data.username}`;
+        document.getElementById('logout').innerHTML = `יצא`;
+        document.getElementById('enter').innerHTML = "";
+        if(data.username!='enter'){
+              document.getElementById('admin').innerHTML = "לוח ניהול";
+        }
+        
+        
+
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('user').innerHTML = 'Error fetching username';
+    }
+}
+getUsername();
+
+document.getElementById('logout').onclick = function () {
+    // Remove the access token from local storage
+    localStorage.removeItem('access_token');
+    
+    // Display a confirmation message
+    alert('התנתקת בהצלחה!');
+
+    // Redirect to the login page or home page
+                        window.location.href = "login.html";
+
+};
+window.onload = function () {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                // If no token, redirect to the login page
+                window.location.href = 'login.html';
+            }
+        };
+    </script> 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+
+</body>
+</html>
